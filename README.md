@@ -15,7 +15,8 @@ This bot allows you to integrate information with Geckoterminal and Tonviewer ab
 Configure your `.env` with the respective data.
 
 ## Some Snapshots 📸
-![Снимок экрана 2024-05-02 110103](https://github.com/JusthackOne/Buyer-bot-ton-tokens-in-telegram/assets/65730026/93b1343f-bb45-40d1-859f-2d1d70e34ec6)
+
 ![Снимок экрана 2024-05-02 110103](https://github.com/JusthackOne/Buyer-bot-ton-tokens-in-telegram/assets/65730026/bf015fbc-a2bf-41b5-adac-e7443e83df98)
+![Снимок экрана 202dwdww4-05-02 110150](https://github.com/JusthackOne/Buyer-bot-ton-tokens-in-telegram/assets/65730026/6892f75c-5704-4518-bfed-41592ca71de4)
 
 
