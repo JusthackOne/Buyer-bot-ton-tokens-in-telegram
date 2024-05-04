@@ -14,8 +14,11 @@ import { createAndCheckPool } from "../db/db.pool/request.js";
 import { TradeDto } from "../utils/tradeDto.js";
 import { TradeDtoNew } from "../utils/tradeDtoNew.js";
 
+import changeTokenInfoMarkup from "../markups/changeTokenInfoMarkup.js";
+
 const sendMessage = new Composer();
 sendMessage.action("addToken", async (ctx) => {
+  // console.log(ctx.callbackQuery);
   await ctx.deleteMessage();
   await ctx.answerCbQuery();
   let msg = await ctx.replyWithHTML(
@@ -44,7 +47,7 @@ addNewToken.on(message("text"), async (ctx) => {
       symbol: res.attributes.symbol,
       image_url: "",
       websites: res.attributes.websites.join(","),
-      description: res.attributes.description,
+      description: res.attributes.description || "",
       discord_url: res.attributes.discord_url,
       telegram_handle: res.attributes.telegram_handle,
       twitter_handle: res.attributes.twitter_handle,
@@ -82,9 +85,7 @@ addNewToken.on(message("text"), async (ctx) => {
     } else {
       await ctx.replyWithHTML(getTokenCreatedText(token), {
         link_preview_options: { is_disabled: true },
-        ...Markup.inlineKeyboard([
-          Markup.button.callback(`Change photo`, `changePhoto ${result[0].id}`),
-        ]).resize(),
+        ...changeTokenInfoMarkup(result[0].id),
       });
     }
   } else {
