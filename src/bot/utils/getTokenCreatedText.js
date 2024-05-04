@@ -1,7 +1,18 @@
+import formatingDescription from "./formatingDescription.js";
+
 export default function (token) {
-  return `🟢 <b>Added new token!</b>\n\n<b>Name:</b> ${
-    token.name
-  }\n<b>Symbol:</b> ${token.symbol}\n\n${
+  return `🟢 <b>Added new token!</b> 🟢${
+    token.description.length > 0
+      ? `\n\n` + formatingDescription(token.description)
+      : ""
+  }\n\n<b>Name:</b> ${token.name}\n<b>Symbol:</b> ${token.symbol}${
+    token?.websites ||
+    token?.discord_url ||
+    token?.telegram_handle ||
+    token?.twitter_handle
+      ? "\n\n"
+      : ""
+  }${
     token?.websites
       ? `<a href="${token.websites.split(",")[0]}">Site</a> |`
       : ""
