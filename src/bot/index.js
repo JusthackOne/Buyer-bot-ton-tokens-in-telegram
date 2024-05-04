@@ -8,6 +8,7 @@ import { Scenes, Telegraf, session } from "telegraf";
 
 import { AddToken } from "./scenes/addToken.js";
 import { ChangePhoto } from "./scenes/changePhoto.js";
+import { ChangeDescription } from "./scenes/changeDescription.js";
 
 import messageHandler from "./handlers/messageHandlers.js";
 import commandHandler from "./handlers/commandHandlers.js";
@@ -17,7 +18,7 @@ import scheduleTask from "./helpers/hookLastOperation.js";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 // инициализация сцен
-const stage = new Scenes.Stage([AddToken, ChangePhoto]);
+const stage = new Scenes.Stage([AddToken, ChangePhoto, ChangeDescription]);
 bot.use(session());
 bot.use(stage.middleware());
 
