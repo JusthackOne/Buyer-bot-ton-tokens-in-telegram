@@ -53,7 +53,6 @@ async function task() {
       updateRes = isExistLastTrade;
     }
 
-    console.log(updateRes);
     const infoPool = (await getTokenPools(pools[t].token_address))[0];
     // console.log(infoPool)
 
@@ -147,7 +146,7 @@ export default async function scheduleTask() {
   if (!taskInProgress) {
     setTimeout(async () => {
       await scheduleTask();
-    }, 2 * 60 * 1000);
+    }, 0.5 * 60 * 1000);
     taskInProgress = true;
     await task();
     taskInProgress = false;
@@ -155,6 +154,6 @@ export default async function scheduleTask() {
     console.log("Previous task is still in progress. Skipping new task.");
     setTimeout(async () => {
       await scheduleTask();
-    }, 2 * 60 * 1000);
+    }, 0.5 * 60 * 1000);
   }
 }
