@@ -1,10 +1,11 @@
 import { Composer, Markup, Scenes } from "telegraf";
 
 import { message } from "telegraf/filters";
-import getTokenCreatedText from "../utils/getTokenCreatedText.js";
+import infoTokenText from "../utils/infoTokenText.js";
 import { GetTokenById, updateDescriptionById } from "../db/db.token/request.js";
 import changeTokenInfoMarkup from "./../markups/changeTokenInfoMarkup.js";
 import formatingDescription from "../utils/formatingDescription.js";
+import checkDescription from "../middlewares/checkDescription.js";
 
 const sendMessage = new Composer();
 sendMessage.action(/changeDescription/, async (ctx) => {
@@ -25,7 +26,7 @@ sendMessage.action(/changeDescription/, async (ctx) => {
 
     if (ctx.wizard.state.media) {
       msg = await ctx.editMessageCaption(
-        `${getTokenCreatedText(
+        `${infoTokenText(
           ctx.wizard.state.text
         )}\n\nSend the <b>description</b> you want the token to have`,
         {
@@ -38,7 +39,7 @@ sendMessage.action(/changeDescription/, async (ctx) => {
       );
     } else {
       msg = await ctx.editMessageText(
-        `${getTokenCreatedText(
+        `${infoTokenText(
           ctx.wizard.state.text
         )}\n\nSend the <b>description</b> you want the token to have`,
         {
@@ -61,37 +62,37 @@ sendMessage.action(/changeDescription/, async (ctx) => {
 
 const change = new Composer();
 //Введён текст
-change.on(message("text"), async (ctx) => {
+change.on(message("text"), checkDescription, async (ctx) => {
   try {
     const token = await updateDescriptionById(
-      formatingDescription(ctx.message.text),
+      ctx.message.text,
       ctx.wizard.state.id
     );
 
     if (token) {
       if (ctx.wizard.state.media === "photo") {
         await ctx.replyWithPhoto(token.image_url.split(" ")[0], {
-          caption: getTokenCreatedText(token),
+          caption: infoTokenText(token),
           parse_mode: "HTML",
           link_preview_options: { is_disabled: true },
           ...changeTokenInfoMarkup(ctx.wizard.state.id),
         });
       } else if (ctx.wizard.state.media === "animation") {
         await ctx.replyWithAnimation(token.image_url.split(" ")[0], {
-          caption: getTokenCreatedText(token),
+          caption: infoTokenText(token),
           parse_mode: "HTML",
           link_preview_options: { is_disabled: true },
           ...changeTokenInfoMarkup(ctx.wizard.state.id),
         });
       } else if (ctx.wizard.state.media === "video") {
         await ctx.replyWithVideo(token.image_url.split(" ")[0], {
-          caption: getTokenCreatedText(token),
+          caption: infoTokenText(token),
           parse_mode: "HTML",
           link_preview_options: { is_disabled: true },
           ...changeTokenInfoMarkup(ctx.wizard.state.id),
         });
       } else {
-        await ctx.replyWithHTML(getTokenCreatedText(token), {
+        await ctx.replyWithHTML(infoTokenText(token), {
           link_preview_options: { is_disabled: true },
           ...changeTokenInfoMarkup(ctx.wizard.state.id),
         });
@@ -129,7 +130,7 @@ change.action("cancel", async (ctx) => {
         ctx.wizard.state.chatId,
         ctx.wizard.state.message_id,
         null,
-        getTokenCreatedText(ctx.wizard.state.text),
+        infoTokenText(ctx.wizard.state.text),
         {
           link_preview_options: { is_disabled: true },
           ...changeTokenInfoMarkup(ctx.wizard.state.id),
@@ -141,7 +142,7 @@ change.action("cancel", async (ctx) => {
         ctx.wizard.state.chatId,
         ctx.wizard.state.message_id,
         null,
-        getTokenCreatedText(ctx.wizard.state.text),
+        infoTokenText(ctx.wizard.state.text),
         {
           link_preview_options: { is_disabled: true },
           ...changeTokenInfoMarkup(ctx.wizard.state.id),
