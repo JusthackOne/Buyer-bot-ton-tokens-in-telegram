@@ -1,5 +1,6 @@
 import bot from "../index.js";
 import {
+    getJettonsInfo,
   getLastPoolsTrades,
   getToken,
   getTokenHolders,
@@ -23,6 +24,7 @@ async function task() {
   const pools = await GetPools(); // Все пуллы из доступного лимита
 
   for (let t in pools) {
+    console.log(`Id pool = ${pools[t].id}`);
     const resLastTrades = await getLastPoolsTrades(pools[t].address); // Получение всех трейдов данного пула
 
     // Получение последнего индекса трейда покупки
@@ -34,10 +36,10 @@ async function task() {
       }
     }
 
-    console.log(`id pool = ${pools[t].id}`);
+
 
     if (resLastTrades === false || lastBuyTrade === undefined) {
-      console.log(`not found ${pools[t].id}`);
+      console.log(`Not found ${pools[t].id} buy`);
       continue;
     }
 
@@ -59,7 +61,7 @@ async function task() {
     // Если трейд обновился, то значит нужно отправлять уведомления по группам
     if (updateRes !== "lastVersion") {
       const tokensRes = await GetTokensByAddress(pools[t].token_address); // Получение токенов по адрессу токена
-      const holders = (await getTokenHolders(pools[t].token_address)).total;
+      const jettonInfo = await getJettonsInfo(pools[t].token_address);
 
       console.log(`Updated last trade ${updateRes.id}`);
       if (tokensRes !== "empty") {
@@ -74,7 +76,7 @@ async function task() {
                     tokensRes[k],
                     updateRes,
                     infoPool,
-                    holders
+                    jettonInfo
                   ),
                   parse_mode: "HTML",
                   link_preview_options: { is_disabled: true },
@@ -89,7 +91,7 @@ async function task() {
                     tokensRes[k],
                     updateRes,
                     infoPool,
-                    holders
+                    jettonInfo
                   ),
                   parse_mode: "HTML",
                   link_preview_options: { is_disabled: true },
@@ -104,7 +106,7 @@ async function task() {
                     tokensRes[k],
                     updateRes,
                     infoPool,
-                    holders
+                    jettonInfo
                   ),
                   parse_mode: "HTML",
                   link_preview_options: { is_disabled: true },
@@ -113,7 +115,7 @@ async function task() {
             } else {
               await bot.telegram.sendMessage(
                 tokensRes[k].group_id,
-                buyedToken(tokensRes[k], updateRes, infoPool, holders),
+                buyedToken(tokensRes[k], updateRes, infoPool, jettonInfo),
                 {
                   parse_mode: "HTML",
                   link_preview_options: { is_disabled: true },
@@ -141,7 +143,7 @@ async function task() {
 }
 
 export default async function scheduleTask() {
-  console.log(global.apiCount);
+  console.log('Заново запускает sheduleTask');
   global.apiCount = 0;
   if (!taskInProgress) {
     setTimeout(async () => {
