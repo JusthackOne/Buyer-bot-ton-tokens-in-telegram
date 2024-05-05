@@ -2,8 +2,9 @@ import formatPrice from "./formatPrice.js";
 import formatPriceLower from "./formatPriceLower.js";
 import formatWallet from "./formatWallet.js";
 import formatingDescription from "./formatingDescription.js";
+import formatingEmoji from "./formatingEmoji.js";
 
-export default function (token, trade, infoPool, holders) {
+export default function (token, trade, infoPool, jettonInfo) {
   // let liquicidy = poolInfo.attributes.reserve_in_usd;
   // let price_percent_change = poolInfo.attributes.price_percent_change;
 
@@ -11,8 +12,9 @@ export default function (token, trade, infoPool, holders) {
     token?.telegram_handle
       ? `<a href="t.me/${token.telegram_handle}">${token.name}</a>`
       : `${token.name}`
-  } <b>Buy!</b> 🟢\n\n${formatingDescription(
-    token.description
+  } <b>Buy!</b> 🟢\n\n${formatingEmoji(
+    token.description,
+    trade.volume_in_usd
   )}\n\n<b>💰Spent:</b> $${formatPrice(trade.volume_in_usd)} (${formatPrice(
     trade.from_token_amount
   )} TON)\n<b>🧳Bought:</b> ${
@@ -33,7 +35,9 @@ export default function (token, trade, infoPool, holders) {
       : "<i>No information</i>"
   }\n<b>💧Liquidity:</b> $${formatPrice(
     infoPool.attributes.reserve_in_usd
-  )}\n<b>👨Holders:</b> ${holders}\n\n${`<a href="https://tonviewer.com/transaction/${trade.tx_hash}">TX</a> |`} ${`<a href="https://www.geckoterminal.com/ton/pools/${infoPool.attributes.address}">Chart</a> |`} ${
+  )}\n<a href="https://tonviewer.com/${
+    jettonInfo.metadata.address
+  }?section=holders"><b>👨Holders:</b> ${jettonInfo.holders_count}</a>\n\n${`<a href="https://tonviewer.com/transaction/${trade.tx_hash}">TX</a> |`} ${`<a href="https://www.geckoterminal.com/ton/pools/${infoPool.attributes.address}">Chart</a> |`} ${
     token?.websites
       ? `<a href="${token.websites.split(",")[0]}">Site</a> |`
       : ""
