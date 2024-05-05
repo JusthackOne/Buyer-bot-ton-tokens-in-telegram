@@ -2,6 +2,12 @@ import { Markup } from "telegraf";
 import { createAndCheckNewUser } from "../db/db.tgUser/request.js";
 import isAdmin from "../helpers/isAdmin.js";
 import { GetGroupTokensByGroupId } from "../db/db.token/request.js";
+import checkIsTokenExist from "../middlewares/checkIsTokenExist.js";
+import checkIsGroup from "../middlewares/checkIsGroup.js";
+import getTokenCreatedText from "../utils/getTokenCreatedText.js";
+import changeTokenInfoMarkup from "../markups/changeTokenInfoMarkup.js";
+import InfoTokenЕxtra from "../utils/InfoTokenExtraDto.js";
+import infoTokenText from "../utils/infoTokenText.js";
 
 export default function handlers(bot) {
   // Первый заход в бота
@@ -14,6 +20,7 @@ export default function handlers(bot) {
       console.error(error);
     }
   });
+  // Инструкция
   bot.command("help", async (ctx) => {
     try {
       await ctx.replyWithHTML(
@@ -23,51 +30,83 @@ export default function handlers(bot) {
       console.error(error);
     }
   });
-  bot.command("allTokens", isAdmin, async (ctx) => {
+
+  // // Все токены
+  // bot.command("allTokens", checkIsGroup, isAdmin, async (ctx) => {
+  //   try {
+  //     await ctx.deleteMessage()
+  //     const tokens = await GetGroupTokensByGroupId(ctx.message.chat.id);
+
+  //     const current = 0;
+  //     const pages = Math.ceil(tokens.length / 6);
+  //     const buttons = [];
+
+  //     if (tokens.length === 0) {
+  //       await ctx.replyWithHTML(`<b>No one token added!</b>`);
+  //       return;
+  //     }
+
+  //     for (let index = 0; index < 6; index++) {
+  //       if (tokens[index]) {
+  //         buttons.push(
+  //           Markup.button.callback(
+  //             tokens[index].name + " - " + tokens[index].symbol,
+  //             `infoToken ${tokens[index].id}`
+  //           )
+  //         );
+  //       } else {
+  //         buttons.push(Markup.button.callback("-", `none`));
+  //       }
+  //     }
+
+  //     buttons.push(Markup.button.callback("<<", `prev_page 0`));
+  //     buttons.push(Markup.button.callback(`1/${pages}`, `none`));
+  //     buttons.push(Markup.button.callback(">>", `next_page 0`));
+  //     buttons.push(Markup.button.callback("Close", `close`));
+
+  //     const markup = Markup.inlineKeyboard(buttons, { columns: 3 }).resize();
+  //     await ctx.replyWithHTML(`<b>All group tokens:</b>`, { ...markup });
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // });
+
+  // Токен группы
+  bot.command("settings", checkIsGroup, isAdmin, async (ctx) => {
     try {
-      const tokens = await GetGroupTokensByGroupId(ctx.message.chat.id);
+      await ctx.deleteMessage();
+      const token = (await GetGroupTokensByGroupId(ctx.message.chat.id))[0];
 
-      const current = 0;
-      const pages = Math.ceil(tokens.length / 6);
-      const buttons = [];
-
-      if (tokens.length === 0) {
+      if (!token) {
         await ctx.replyWithHTML(`<b>No one token added!</b>`);
         return;
       }
+      const id = token.id;
+      const format = token.image_url.split(" ")[1];
+      const media = token.image_url.split(" ")[0];
+      const extra = new InfoTokenЕxtra(token, id);
 
-      for (let index = 0; index < 6; index++) {
-        if (tokens[index]) {
-          buttons.push(
-            Markup.button.callback(
-              tokens[index].name + " - " + tokens[index].symbol,
-              `infoToken ${tokens[index].id}`
-            )
-          );
-        } else {
-          buttons.push(Markup.button.callback("-", `none`));
-        }
+      if (format === "photo") {
+        await ctx.replyWithPhoto(media, extra);
+      } else if (format === "animation") {
+        await ctx.replyWithAnimation(media, extra);
+      } else if (format === "video") {
+        await ctx.replyWithVideo(media, extra);
+      } else {
+        await ctx.replyWithHTML(infoTokenText(token), extra);
       }
-
-      buttons.push(Markup.button.callback("<<", `prev_page 0`));
-      buttons.push(Markup.button.callback(`1/${pages}`, `none`));
-      buttons.push(Markup.button.callback(">>", `next_page 0`));
-      buttons.push(Markup.button.callback("Close", `close`));
-
-      const markup = Markup.inlineKeyboard(buttons, { columns: 3 }).resize();
-      await ctx.replyWithHTML(`<b>All group tokens:</b>`, { ...markup });
     } catch (error) {
       console.error(error);
     }
   });
+
+  // Добавить токен
   bot.command(
     "startbb",
+    checkIsGroup,
     isAdmin,
+    checkIsTokenExist,
     async (ctx) => {
-      if (ctx.chat.type === "private") {
-        await ctx.replyWithHTML("This command is only available in groups");
-        return;
-      }
       try {
         const newUser = {
           username: ctx.message.from.username,
@@ -92,9 +131,6 @@ export default function handlers(bot) {
       } catch (err) {
         console.log(err);
       }
-    },
-    async (ctx) => {
-      console.log(ctx.message.chat.id);
     }
   );
 }
