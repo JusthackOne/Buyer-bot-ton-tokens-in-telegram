@@ -24,8 +24,8 @@ export async function createAndCheckToken(token, group_id) {
 
       db.run(
         "INSERT INTO tokens  (token_id, type, address, name, symbol, \
-             image_url, websites, description, discord_url, telegram_handle, \
-              twitter_handle, group_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+              image_url, websites, description, discord_url, telegram_handle, \
+                twitter_handle, group_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         values,
         function (err) {
           if (err) {
@@ -243,7 +243,7 @@ export async function GetGroupTokensByGroupId(group_id) {
   }
 }
 
-// Получение всех токенов группы
+// Удаление токена по id и group_id
 export async function DeleteTokenByIdAndGroupId(id, group_id) {
   function deleteRow(id, group_id) {
     return new Promise((resolve, reject) => {
@@ -268,6 +268,54 @@ export async function DeleteTokenByIdAndGroupId(id, group_id) {
     return true;
   } catch (err) {
     console.error(`Ошибка при удалении токенов группы ${(group_id, id)}`, err);
+    return "error";
+  }
+}
+
+
+// Обновление telegram токена по id
+export async function updateTelegram_handleByTokenId(telegram_handle, id) {
+  function check(id) {
+    return new Promise((resolve, reject) => {
+      db.all(
+        "SELECT * FROM tokens WHERE (id)  = (?)",
+        [id],
+        function (err, rows) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        }
+      );
+    });
+  }
+
+  function update(telegram, id) {
+    return new Promise((resolve, reject) => {
+      db.all(
+        "UPDATE tokens SET telegram_handle = ? WHERE id = ? RETURNING *",
+        [telegram_handle, id],
+        function (err, rows) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows[0]);
+          }
+        }
+      );
+    });
+  }
+
+  try {
+    const rows = await check(id);
+    if (rows.length > 0) {
+      return await update(telegram_handle, id);
+    } else {
+      return false;
+    }
+  } catch (err) {
+    console.error("Ошибка при обновлении телеграмма токена", err);
     return "error";
   }
 }
