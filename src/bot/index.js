@@ -15,10 +15,11 @@ import commandHandler from "./handlers/commandHandlers.js";
 import actionHandler from "./handlers/actionHandler.js";
 
 import scheduleTask from "./helpers/hookLastOperation.js";
+import { ChangeTelegram } from "./scenes/changeTelegram.js";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 // инициализация сцен
-const stage = new Scenes.Stage([AddToken, ChangePhoto, ChangeDescription]);
+const stage = new Scenes.Stage([AddToken, ChangePhoto, ChangeDescription, ChangeTelegram]);
 bot.use(session());
 bot.use(stage.middleware());
 
