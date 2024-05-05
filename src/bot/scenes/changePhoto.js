@@ -3,7 +3,7 @@ import {
   GetTokenById,
   updateImageUrlTokenById,
 } from "../db/db.token/request.js";
-import getTokenCreatedText from "../utils/getTokenCreatedText.js";
+import infoTokenText from "../utils/infoTokenText.js";
 import changeTokenInfoMarkup from "./../markups/changeTokenInfoMarkup.js";
 
 const sendMessage = new Composer();
@@ -19,7 +19,7 @@ sendMessage.action(/changePhoto/, async (ctx) => {
       ctx.callbackQuery.message?.animation
     ) {
       msg = await ctx.editMessageCaption(
-        `${getTokenCreatedText(
+        `${infoTokenText(
           ctx.wizard.state.text
         )}\n\nSend the <b>photo</b> you want the token to have`,
         {
@@ -32,7 +32,7 @@ sendMessage.action(/changePhoto/, async (ctx) => {
       );
     } else {
       msg = await ctx.editMessageText(
-        `${getTokenCreatedText(
+        `${infoTokenText(
           ctx.wizard.state.text
         )}\n\nSend the <b>photo</b> you want the token to have`,
         {
@@ -65,7 +65,7 @@ change.on("photo", async (ctx) => {
     const media = token.image_url.split(" ")[0];
 
     await ctx.replyWithPhoto(media, {
-      caption: getTokenCreatedText(token),
+      caption: infoTokenText(token),
       link_preview: false,
       ...changeTokenInfoMarkup(ctx.wizard.state.id),
       parse_mode: "HTML",
@@ -88,7 +88,7 @@ change.on("animation", async (ctx) => {
       Number(ctx.wizard.state.id)
     );
     await ctx.replyWithDocument(token.image_url.split(" ")[0], {
-      caption: getTokenCreatedText(token),
+      caption: infoTokenText(token),
       parse_mode: "HTML",
       ...changeTokenInfoMarkup(ctx.wizard.state.id),
       link_preview_options: { is_disabled: true },
@@ -111,7 +111,7 @@ change.on("video", async (ctx) => {
       Number(ctx.wizard.state.id)
     );
     await ctx.replyWithVideo(res.image_url.split(" ")[0], {
-      caption: getTokenCreatedText(res),
+      caption: infoTokenText(res),
       parse_mode: "HTML",
       ...changeTokenInfoMarkup(ctx.wizard.state.id),
       link_preview_options: { is_disabled: true },
@@ -139,7 +139,7 @@ change.action("cancel", async (ctx) => {
         ctx.wizard.state.chatId,
         ctx.wizard.state.message_id,
         null,
-        getTokenCreatedText(ctx.wizard.state.text),
+        infoTokenText(ctx.wizard.state.text),
         {
           link_preview_options: { is_disabled: true },
           ...changeTokenInfoMarkup(ctx.wizard.state.id),
@@ -151,7 +151,7 @@ change.action("cancel", async (ctx) => {
         ctx.wizard.state.chatId,
         ctx.wizard.state.message_id,
         null,
-        getTokenCreatedText(ctx.wizard.state.text),
+        infoTokenText(ctx.wizard.state.text),
         {
           link_preview_options: { is_disabled: true },
           ...changeTokenInfoMarkup(ctx.wizard.state.id),
