@@ -222,4 +222,15 @@ export default function handler(bot) {
       console.error(error);
     }
   });
+
+  // change telegram_handle
+  bot.action(/changeTelegram/, isAdminAction, async (ctx) => {
+    const id = ctx.callbackQuery.data.replace("changeTelegram ", "");
+
+    await ctx.scene.enter("ChangeTelegram", {
+      id: id,
+    });
+
+    await ctx.answerCbQuery();
+  });
 }
